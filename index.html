@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Snake Game</title>
+    <link rel="stylesheet" href="style.css" />
+    <style></style>
+  </head>
+  <body>
+    <div id="game__container">
+      <div class="game-over-text">Game Over</div>
+      <h1 class="game-title">Snake by Taras Khomyn</h1>
+      <div class="game-data">
+        <div class="game-score_title">
+          Score
+          <span class="game-score_value">0</span>
+        </div>
+        <div class="game-speed_title">
+          Speed
+          <span class="game-speed_value"></span>
+        </div>
+      </div>
+      <div id="game__background">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+      </div>
+    </div>
+    <script src="snake.js"></script>
+  </body>
+</html>

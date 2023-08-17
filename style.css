@@ -1,0 +1,43 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto+Mono:100,200,300,regular,500,600,700,100italic,200italic,300italic,italic,500italic,600italic,700italic);
+body {
+  font-family: "Roboto", "Arial";
+  background-color: black;
+}
+
+#game__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  /* height: 100vh; */
+}
+.game-over-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: brown;
+  transform: translate(-50%, -50%);
+  font-size: 4rem;
+  padding: 10px;
+  display: none;
+}
+.game-title {
+  color: aliceblue;
+}
+.game-data {
+  width: 600px;
+  color: aliceblue;
+  /* align-self: flex-start; */
+}
+#game__background {
+  /* background-color: aliceblue; */
+}
+#gameCanvas {
+  border: 5px solid rgb(0, 0, 0);
+  background: url(assets/sprite.svg) rgb(54, 53, 53);
+  background-blend-mode: darken;
+  background-size: 20px 20px;
+  background-repeat: repeat;
+}
