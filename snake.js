@@ -1,4 +1,4 @@
-import { Prefs, Game } from "/game-pref.js";
+import { Prefs, Game } from "./game-pref.js";
 var canvas;
 var ctx;
 var speedText;
