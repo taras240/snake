@@ -1,33 +1,26 @@
-import { Prefs, Game } from "./game-pref.js";
-var canvas;
+import { Prefs, Game, playSound, ScreenElements } from "./game-pref.js";
 var ctx;
-var speedText;
-var scoreText;
-var gameOverText;
-var applePosX = 15;
-var applePosY = 0;
-let newDirection = "right";
-let direction = "right";
 var intervalId;
 let eatedApple = false;
 let directionChanged = false;
 const appleImg = new Image();
 const spriteImg = new Image();
+const pathImg = new Image();
+
 appleImg.src = "assets/red-sprite.svg";
-spriteImg.src = "assets/sprite.svg";
+spriteImg.src = "assets/snake-sprite.svg";
+pathImg.src = "assets/path-sprite.svg";
+pathImg.style.opacity = 0.5;
 let prefs = new Prefs();
 let game = new Game();
+let screen = new ScreenElements();
 window.onload = function () {
-  scoreText = document.querySelector(".game-score_value");
-  speedText = document.querySelector(".game-speed_value");
-  gameOverText = document.querySelector(".game-over-text");
-  canvas = document.getElementById("gameCanvas");
-  ctx = canvas.getContext("2d");
+  ctx = screen.canvas.getContext("2d");
   ctx.imageSmoothingEnabled = false;
   intervalId = setInterval(gameLoop, 1000 / prefs.speed);
 };
 function resetGame() {
-  gameOverText.style.display = "none";
+  screen.gameOverText.style.display = "none";
   prefs = new Prefs();
   game = new Game();
   eatedApple = false;
@@ -38,11 +31,8 @@ function startGame(reset = false) {
   intervalId = setInterval(gameLoop, 1000 / prefs.speed);
 }
 function stopGame() {
-  game.snakePosX = [];
-
-  game.snakePosY = [];
   clearInterval(intervalId);
-  gameOverText.style.display = "block";
+  screen.gameOverText.style.display = "block";
 }
 function gameLoop() {
   moveSnake();
@@ -51,105 +41,187 @@ function gameLoop() {
 }
 
 function moveSnake() {
-  direction = newDirection;
-  if (direction == "right") {
-    game.snakePosX.push(game.snakePosX.at(-1) + 1);
-    game.snakePosY.push(game.snakePosY.at(-1));
-  } else if (direction == "left") {
-    game.snakePosX.push(game.snakePosX.at(-1) - 1);
-    game.snakePosY.push(game.snakePosY.at(-1));
-  } else if (direction == "up") {
-    game.snakePosX.push(game.snakePosX.at(-1));
-    game.snakePosY.push(game.snakePosY.at(-1) - 1);
-  } else if (direction == "down") {
-    game.snakePosX.push(game.snakePosX.at(-1));
-    game.snakePosY.push(game.snakePosY.at(-1) + 1);
+  game.direction = game.newDirection;
+  if (game.direction == "right") {
+    game.snake.posX.push(game.snake.posX.at(-1) + 1);
+    game.snake.posY.push(game.snake.posY.at(-1));
+  } else if (game.direction == "left") {
+    game.snake.posX.push(game.snake.posX.at(-1) - 1);
+    game.snake.posY.push(game.snake.posY.at(-1));
+  } else if (game.direction == "up") {
+    game.snake.posX.push(game.snake.posX.at(-1));
+    game.snake.posY.push(game.snake.posY.at(-1) - 1);
+  } else if (game.direction == "down") {
+    game.snake.posX.push(game.snake.posX.at(-1));
+    game.snake.posY.push(game.snake.posY.at(-1) + 1);
   }
   if (!eatedApple) {
-    game.snakePosX.shift();
-    game.snakePosY.shift();
+    game.snake.posX.shift();
+    game.snake.posY.shift();
   } else {
     eatedApple = false;
   }
 }
 
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, screen.canvas.width, screen.canvas.height);
 
   ctx.fillStyle = "green";
   ctx.strokeStyle = "green";
-  for (let i = 0; i < game.snakePosX.length; i++) {
+  for (let i = 0; i < game.snake.posX.length; i++) {
     ctx.drawImage(
       spriteImg,
-      game.snakePosX[i] * prefs.blockSize,
-      game.snakePosY[i] * prefs.blockSize,
+      game.snake.posX[i] * prefs.blockSize,
+      game.snake.posY[i] * prefs.blockSize,
       prefs.blockSize,
       prefs.blockSize
     );
   }
+  ///
+  // switch (game.direction) {
+  //   case "down":
+  //     for (
+  //       let i = game.snake.posY.at(-1) + 1, j = 0;
+  //       i < prefs.heightInBlocks;
+  //       i++, j++
+  //     ) {
+  //       for (
+  //         let x = game.snake.posX.at(-1) - j;
+  //         x <= game.snake.posX.at(-1) + j;
+  //         x++
+  //       ) {
+  //         ctx.drawImage(
+  //           pathImg,
+  //           x * prefs.blockSize,
+  //           i * prefs.blockSize,
+  //           prefs.blockSize,
+  //           prefs.blockSize
+  //         );
+  //       }
+  //     }
+  //     break;
+  //   case "up":
+  //     for (let y = game.snake.posY.at(-1) - 1, j = 0; y >= 0; y--, j++) {
+  //       for (
+  //         let x = game.snake.posX.at(-1) - j;
+  //         x <= game.snake.posX.at(-1) + j;
+  //         x++
+  //       ) {
+  //         ctx.drawImage(
+  //           pathImg,
+  //           x * prefs.blockSize,
+  //           y * prefs.blockSize,
+  //           prefs.blockSize,
+  //           prefs.blockSize
+  //         );
+  //       }
+  //     }
+  //     break;
+  //   case "left":
+  //     for (let x = game.snake.posX.at(-1) - 1, j = 0; x >= 0; x--, j++) {
+  //       for (
+  //         let y = game.snake.posY.at(-1) - j;
+  //         y <= game.snake.posY.at(-1) + j;
+  //         y++
+  //       ) {
+  //         ctx.drawImage(
+  //           pathImg,
+  //           x * prefs.blockSize,
+  //           y * prefs.blockSize,
+
+  //           prefs.blockSize,
+  //           prefs.blockSize
+  //         );
+  //       }
+  //     }
+  //     break;
+  //   case "right":
+  //     for (
+  //       let x = game.snake.posX.at(-1) + 1, j = 0;
+  //       x < prefs.widthInBlocks;
+  //       x++, j++
+  //     ) {
+  //       for (
+  //         let y = game.snake.posY.at(-1) - j;
+  //         y <= game.snake.posY.at(-1) + j;
+  //         y++
+  //       ) {
+  //         ctx.drawImage(
+  //           pathImg,
+  //           x * prefs.blockSize,
+  //           y * prefs.blockSize,
+
+  //           prefs.blockSize,
+  //           prefs.blockSize
+  //         );
+  //       }
+  //     }
+  //     break;
+  // }
+
   ctx.drawImage(
     appleImg,
-    applePosX * prefs.blockSize,
-    applePosY * prefs.blockSize,
+    game.applePosX * prefs.blockSize,
+    game.applePosY * prefs.blockSize,
     prefs.blockSize,
     prefs.blockSize
   );
-  scoreText.innerText = prefs.score;
-  speedText.innerText = prefs.speed;
+  screen.scoreText.innerText = prefs.score;
+  screen.speedText.innerText = prefs.speed;
 }
 
 function checkCollision() {
-  let headPosX = game.snakePosX.at(-1);
-  let headPosY = game.snakePosY.at(-1);
+  let headPosX = game.snake.posX.at(-1);
+  let headPosY = game.snake.posY.at(-1);
   ///   COLLISION WITH WALLS    ///
   if (headPosX > prefs.widthInBlocks - 1) {
-    game.snakePosX[game.snakePosX.length - 1] = 0;
+    game.snake.posX[game.snake.posX.length - 1] = 0;
   } else if (headPosX < 0) {
-    game.snakePosX[game.snakePosX.length - 1] = prefs.widthInBlocks - 1;
+    game.snake.posX[game.snake.posX.length - 1] = prefs.widthInBlocks - 1;
   } else if (headPosY < 0) {
-    game.snakePosY[game.snakePosY.length - 1] = prefs.heightInBlocks - 1;
+    game.snake.posY[game.snake.posY.length - 1] = prefs.heightInBlocks - 1;
   } else if (headPosY > prefs.heightInBlocks - 1) {
-    game.snakePosY[game.snakePosY.length - 1] = 0;
+    game.snake.posY[game.snake.posY.length - 1] = 0;
   }
   ///  COLLISION WHITH ITSELFS   /////
 
-  for (let i = 0; i < game.snakePosX.length - 1; i++) {
-    if (game.snakePosX[i] === headPosX && game.snakePosY[i] === headPosY)
+  for (let i = 0; i < game.snake.posX.length - 1; i++) {
+    if (game.snake.posX[i] === headPosX && game.snake.posY[i] === headPosY)
       stopGame();
   }
 
   ///  COLLISION WITH APPLE    /////
   if (
-    game.snakePosX.at(-1) == applePosX &&
-    game.snakePosY.at(-1) == applePosY
+    game.snake.posX.at(-1) == game.applePosX &&
+    game.snake.posY.at(-1) == game.applePosY
   ) {
     prefs.score += prefs.speed * 10;
     eatedApple = true;
+    playSound(500);
 
     spawnApple();
     if (prefs.score / (prefs.speed * 10) >= prefs.level * 5) {
       prefs.speed++;
       prefs.level++;
-      console.log(speed);
     }
   }
 }
 
 function spawnApple() {
-  applePosX = Math.floor(Math.random() * prefs.widthInBlocks);
-  applePosY = Math.floor(Math.random() * prefs.heightInBlocks);
+  game.applePosX = Math.floor(Math.random() * prefs.widthInBlocks);
+  game.applePosY = Math.floor(Math.random() * prefs.heightInBlocks);
 }
 
 document.addEventListener("keydown", function (event) {
   console.log(event.key);
-  if (event.key == "ArrowRight" && direction != "left") {
-    newDirection = "right";
-  } else if (event.key == "ArrowLeft" && direction != "right") {
-    newDirection = "left";
-  } else if (event.key == "ArrowUp" && direction != "down") {
-    newDirection = "up";
-  } else if (event.key == "ArrowDown" && direction != "up") {
-    newDirection = "down";
+  if (event.key == "ArrowRight" && game.direction != "left") {
+    game.newDirection = "right";
+  } else if (event.key == "ArrowLeft" && game.direction != "right") {
+    game.newDirection = "left";
+  } else if (event.key == "ArrowUp" && game.direction != "down") {
+    game.newDirection = "up";
+  } else if (event.key == "ArrowDown" && game.direction != "up") {
+    game.newDirection = "down";
   } else if (event.key == "Enter") {
     stopGame();
     resetGame();
